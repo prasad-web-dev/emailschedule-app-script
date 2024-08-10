@@ -1,0 +1,81 @@
+function sendScheduledEmails() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("aug-2024"); // Ensure this matches your sheet name
+  if (!sheet) {
+    Logger.log("Sheet not found. Please check the sheet name.");
+    return;
+  }
+  
+  var range = sheet.getDataRange();
+  var values = range.getValues();
+  
+  var now = new Date();
+  
+  for (var i = 1; i < values.length; i++) { // Start from 1 to skip header row
+    var row = values[i];
+    var emailAddress = row[0];
+    var subject = row[1];
+    var body = row[2];
+    var sendDate = new Date(row[3]);
+    var status = row[4];
+    
+    if (sendDate <= now && (status == "" || status != "Sent")) {
+      MailApp.sendEmail(emailAddress, subject, body);
+      sheet.getRange(i + 1, 5).setValue("Sent"); // Update status to "Sent"
+    }
+  }
+}
+
+
+
+Google Sheet format 
+Email Address	Subject	Body	Send Date	Status
+
+
+=======================================================================================================
+Manually Remainer call:
+
+function sendFilteredEmails() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Reminder"); // Change "Sheet1" to your sheet name
+  var range = sheet.getDataRange();
+  var values = range.getValues();
+  
+  for (var i = 1; i < values.length; i++) { // Skip the header row
+    var row = values[i];
+    var emailAddress = row[0];
+    var subject = row[1];
+    var body = row[2];
+    var sendFlag = row[3];
+    
+    if (sendFlag === "Yes") {
+      MailApp.sendEmail(emailAddress, subject, body);
+      sheet.getRange(i + 1, 4).setValue("Sent"); // Update status to "Sent" in the Send Flag column
+    }
+  }
+}
+
+Email Address	Subject	Body	Send Flag(Yes/No)
+
+advance version 02
+
+Email Address	Subject	Body	Send Flag(Yes/No)	Status
+
+function sendFilteredEmails() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Reminder"); // Change "Sheet1" to your actual sheet name
+  var range = sheet.getDataRange();
+  var values = range.getValues();
+  
+  for (var i = 1; i < values.length; i++) { // Start from row 2 to skip the header
+    var row = values[i];
+    var emailAddress = row[0];
+    var subject = row[1];
+    var body = row[2];
+    var sendFlag = row[3];
+    var status = row[4];
+    
+    // Check if the "Send Flag" is "Yes" and the status is not "Sent"
+    if (sendFlag === "Yes" && status !== "Sent") {
+      MailApp.sendEmail(emailAddress, subject, body);
+      sheet.getRange(i + 1, 5).setValue("Sent"); // Update the Status column to "Sent"
+    }
+  }
+}
